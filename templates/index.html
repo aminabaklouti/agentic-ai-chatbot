@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Agentic AI Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #e8f5e8;
+            color: #2d7d32;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1px solid #c8e6c9;
+        }
+
+        .chat-container {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        #queryInput {
+            flex: 1;
+            min-width: 300px;
+            padding: 16px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        #queryInput:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #sendBtn {
+            padding: 16px 32px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        #sendBtn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        #sendBtn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .response-container {
+            min-height: 250px;
+            margin-top: 30px;
+        }
+
+        .response-box {
+            background: #f8f9ff;
+            border: 1px solid #e8ebff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .response-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e8ebff;
+        }
+
+        .response-icon {
+            font-size: 1.2rem;
+            margin-right: 8px;
+        }
+
+        .response-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .response-text {
+            color: #444;
+            line-height: 1.7;
+            font-size: 16px;
+            white-space: pre-wrap;
+        }
+
+        .tools-used {
+            background: #fff8e1;
+            border: 1px solid #ffecb3;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+
+        .tools-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .tools-header h4 {
+            color: #f57c00;
+            margin: 0;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-left: 5px;
+        }
+
+        .tool-tag {
+            display: inline-block;
+            background: #ff9800;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin: 3px;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(255, 152, 0, 0.3);
+        }
+
+        .no-tools {
+            background: #f3e5f5;
+            border: 1px solid #e1bee7;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 20px;
+            color: #7b1fa2;
+            font-style: italic;
+            text-align: center;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            font-style: italic;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 12px;
+            border: 2px dashed #e8ebff;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #e8ebff;
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .examples {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .examples h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .example-btn {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 10px 16px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .example-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .error {
+            background: #ffebee;
+            border: 1px solid #ffcdd2;
+            color: #c62828;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+                margin: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            #queryInput {
+                min-width: auto;
+                width: 100%;
+            }
+            
+            #sendBtn {
+                width: 100%;
+            }
+
+            .examples {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Agentic AI Chatbot</h1>
+            <p>Powered by LangGraph • ArXiv • Wikipedia • Web Search</p>
+            <div class="status-badge">🟢 Online & Ready</div>
+        </div>
+
+        <div class="chat-container">
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    id="queryInput" 
+                    placeholder="Ask me about research, general knowledge, or current events..."
+                    onkeypress="handleKeyPress(event)"
+                    autocomplete="off"
+                >
+                <button id="sendBtn" onclick="sendQuery()">
+                    <span id="btnText">Send</span>
+                </button>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <span>AI is thinking and searching for the best answer...</span>
+            </div>
+            
+            <div class="response-container" id="responseContainer">
+                <div style="text-align: center; color: #888; font-style: italic; padding: 40px;">
+                    💬 Your conversation will appear here
+                </div>
+            </div>
+        </div>
+
+        <div class="examples">
+            <h3>💡 Try these examples:</h3>
+            <button class="example-btn" onclick="setQuery('What are the latest developments in quantum computing?')">
+                🔬 Quantum Computing Research
+            </button>
+            <button class="example-btn" onclick="setQuery('Explain machine learning in simple terms')">
+                🧠 Machine Learning Basics
+            </button>
+            <button class="example-btn" onclick="setQuery('Latest AI news today')">
+                📰 Current AI News
+            </button>
+            <button class="example-btn" onclick="setQuery('Recent papers on computer vision')">
+                👁️ Computer Vision Papers
+            </button>
+            <button class="example-btn" onclick="setQuery('What is quantum entanglement?')">
+                ⚛️ Quantum Physics
+            </button>
+            <button class="example-btn" onclick="setQuery('History of artificial intelligence')">
+                🏛️ AI History
+            </button>
+        </div>
+
+        <div class="footer">
+            <p>Built with Flask, LangGraph, and ❤️ | Deployed on Render</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendQuery();
+            }
+        }
+
+        function setQuery(query) {
+            document.getElementById('queryInput').value = query;
+            document.getElementById('queryInput').focus();
+        }
+
+        async function sendQuery() {
+            const query = document.getElementById('queryInput').value.trim();
+            if (!query) {
+                alert('Please enter a question!');
+                return;
+            }
+
+            const sendBtn = document.getElementById('sendBtn');
+            const btnText = document.getElementById('btnText');
+            const loading = document.getElementById('loading');
+            const responseContainer = document.getElementById('responseContainer');
+
+            // Show loading state
+            sendBtn.disabled = true;
+            btnText.textContent = '⏳ Thinking...';
+            loading.style.display = 'block';
+            responseContainer.innerHTML = '';
+
+            try {
+                const response = await fetch(`${API_BASE}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query: query })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to get response');
+                }
+
+                // Display response
+                displayResponse(data, query);
+
+            } catch (error) {
+                console.error('Error:', error);
+                displayError(error.message);
+            } finally {
+                // Reset UI state
+                sendBtn.disabled = false;
+                btnText.textContent = 'Send';
+                loading.style.display = 'none';
+                
+                // Clear input
+                document.getElementById('queryInput').value = '';
+            }
+        }
+
+        function displayResponse(data, query) {
+            const responseContainer = document.getElementById('responseContainer');
+            
+            const responseBox = document.createElement('div');
+            responseBox.className = 'response-box';
+            
+            // Add header
+            const header = document.createElement('div');
+            header.className = 'response-header';
+            header.innerHTML = `
+                <span class="response-icon">🤖</span>
+                <span class="response-title">AI Response</span>
+            `;
+            responseBox.appendChild(header);
+
+            // Add response text
+            const responseText = document.createElement('div');
+            responseText.className = 'response-text';
+            responseText.textContent = data.response;
+            responseBox.appendChild(responseText);
+
+            // Add tools used or no tools message
+            if (data.tools_used && data.tools_used.length > 0) {
+                const toolsDiv = document.createElement('div');
+                toolsDiv.className = 'tools-used';
+                
+                const toolsHeader = document.createElement('div');
+                toolsHeader.className = 'tools-header';
+                toolsHeader.innerHTML = '🔧 <h4>Tools Used:</h4>';
+                toolsDiv.appendChild(toolsHeader);
+                
+                data.tools_used.forEach(tool => {
+                    const toolTag = document.createElement('span');
+                    toolTag.className = 'tool-tag';
+                    toolTag.textContent = tool.toUpperCase();
+                    toolsDiv.appendChild(toolTag);
+                });
+                
+                responseBox.appendChild(toolsDiv);
+            } else {
+                const noToolsDiv = document.createElement('div');
+                noToolsDiv.className = 'no-tools';
+                noToolsDiv.innerHTML = '💭 <em>Response generated using built-in knowledge (no external tools needed)</em>';
+                responseBox.appendChild(noToolsDiv);
+            }
+
+            responseContainer.appendChild(responseBox);
+            
+            // Scroll to response
+            responseBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function displayError(message) {
+            const responseContainer = document.getElementById('responseContainer');
+            
+            const errorBox = document.createElement('div');
+            errorBox.className = 'response-box error';
+            errorBox.innerHTML = `
+                <div class="response-header">
+                    <span class="response-icon">❌</span>
+                    <span class="response-title">Error</span>
+                </div>
+                <div class="response-text">${message}</div>
+            `;
+            
+            responseContainer.appendChild(errorBox);
+        }
+
+        // Auto-focus input on page load
+        window.onload = function() {
+            document.getElementById('queryInput').focus();
+        };
+
+        // Add some loading tips
+        const loadingTips = [
+            "AI is searching through academic papers...",
+            "Checking Wikipedia for relevant information...",
+            "Searching the web for latest updates...",
+            "Analyzing and synthesizing information...",
+            "Preparing the perfect response for you..."
+        ];
+
+        function updateLoadingText() {
+            const loadingElement = document.querySelector('.loading span');
+            if (loadingElement && document.getElementById('loading').style.display !== 'none') {
+                const randomTip = loadingTips[Math.floor(Math.random() * loadingTips.length)];
+                loadingElement.textContent = randomTip;
+            }
+        }
+
+        // Change loading text every 3 seconds
+        setInterval(updateLoadingText, 3000);
+    </script>
+</body>
+</html>
